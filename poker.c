@@ -16,6 +16,7 @@ typedef struct {
 
 int totalcardnum[15] = {0};
 
+//input param check and covert from char to int
 int poker_format(char *hand, pstPoker pokerset)
 {
 	int res = 0;
@@ -122,12 +123,13 @@ int poker_format(char *hand, pstPoker pokerset)
 			}
 		}
 	}
-	
+
+	//the number of same kind card from both hands should less than 4
 	for(j=0; j<15; j++)
 	{
 		if(totalcardnum[j] > 4)
 		{
-			printf("more than 4 pieces for total\n");
+			printf("Error! more than 4 pieces for same kind\n");
 			return -1;
 		}
 	}
@@ -135,8 +137,8 @@ int poker_format(char *hand, pstPoker pokerset)
 	return 0;
 }
 
-
-int poker_order(pstPoker pokerset)
+//sort cards by: 1st number of same kinds of cards; 2nd highset card;
+int poker_sort(pstPoker pokerset)
 {
 	stPoker tmp = {0,0};
 	pstPoker currentpoker = NULL;
@@ -183,9 +185,9 @@ int poker_order(pstPoker pokerset)
 	return 0;
 }
 
+//provide the result of who is winner
 int poker_judge(pstPoker lpokerset, pstPoker rpokerset, int *whowin)
 {
-	int result = 0;
 	int i = 0;
 	int llength = 0;
 	int rlength = 0;
@@ -195,6 +197,7 @@ int poker_judge(pstPoker lpokerset, pstPoker rpokerset, int *whowin)
 	firsthand = lpokerset;
 	secondhand = rpokerset;
 	
+	//1st, the winner is who own less kinds of poker
 	for(i=0; i<MAX_POKER_NUM; i++)
 	{
 		if(0 != firsthand->num)
@@ -212,21 +215,18 @@ int poker_judge(pstPoker lpokerset, pstPoker rpokerset, int *whowin)
 	
 	if(llength > rlength)
 	{
-		printf("second hand length is short\n");
-		result = SECOND_HAND_WIN;
-		*whowin = result;
+		*whowin = SECOND_HAND_WIN;
 		return 0;
 	}
 	
 	if(llength < rlength)
 	{
-		printf("first hand length is short\n");
-		result = FIRST_HAND_WIN;
-		*whowin = result;
+		*whowin = FIRST_HAND_WIN;
 		return 0;
 	}
 	
-	//length is equal
+	//2nd, more number of same kind of cards;
+	//3rd, highest card
 	firsthand = lpokerset;
 	secondhand = rpokerset;
 	for(i=0; i<MAX_POKER_NUM; i++)
@@ -241,33 +241,28 @@ int poker_judge(pstPoker lpokerset, pstPoker rpokerset, int *whowin)
 			}
 			else if(firsthand->type > secondhand->type)
 			{
-				result = FIRST_HAND_WIN;
-				*whowin = result;
+				*whowin = FIRST_HAND_WIN;
 				return 0;
 			}
 			else //firsthand->type < secondhand->type
 			{
-				result = SECOND_HAND_WIN;
-				*whowin = result;
+				*whowin = SECOND_HAND_WIN;
 				return 0;
 			}
 		}
 		else if(firsthand->num > secondhand->num)
 		{
-			result = FIRST_HAND_WIN;
-			*whowin = result;
+			*whowin = FIRST_HAND_WIN;
 			return 0;
 		}
 		else //firsthand->num < secondhand->num
 		{
-			result = SECOND_HAND_WIN;
-			*whowin = result;
+			*whowin = SECOND_HAND_WIN;
 			return 0;
 		}
 	}
 
-	result = IT_IS_TIE;
-	*whowin = result;
+	*whowin = IT_IS_TIE;
 	return 0;
 }
 
@@ -285,7 +280,6 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 	
-	//printf("%s, %s, %d\n", argv[1], argv[2], argc);
 	memset(firstpokerset, 0, sizeof(firstpokerset));
 	memset(secondpokerset, 0, sizeof(secondpokerset));
 	
@@ -303,17 +297,17 @@ int main(int argc, char *argv[])
 		return res;
 	}
 
-	res = poker_order(firstpokerset);
+	res = poker_sort(firstpokerset);
 	if(res != 0)
 	{
-		printf("error, poker order for first hand abort\n");
+		printf("error, poker sort for first hand abort\n");
 		return res;
 	}
 	
-	res = poker_order(secondpokerset);
+	res = poker_sort(secondpokerset);
 	if(res != 0)
 	{
-		printf("error, poker order for second hand abort\n");
+		printf("error, poker sort for second hand abort\n");
 		return res;
 	}
 	
@@ -332,7 +326,7 @@ int main(int argc, char *argv[])
 	{
 		printf("Second hand wins!\n");
 	}
-	else
+	else //IT_IS_TIE == result
 	{
 		printf("It's a tie!\n");
 	}
